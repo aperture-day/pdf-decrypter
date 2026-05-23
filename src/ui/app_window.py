@@ -60,7 +60,7 @@ class MainWindow:
         
         self.sub_logo_label = ctk.CTkLabel(
             self.sidebar_frame, 
-            text="批次安全解密工具", 
+            text="Batch Decryption Utility", 
             font=ctk.CTkFont(size=12, weight="normal"),
             text_color="gray"
         )
@@ -69,7 +69,7 @@ class MainWindow:
         # Configurations Area
         self.config_label = ctk.CTkLabel(
             self.sidebar_frame, 
-            text="系統設定 Options", 
+            text="System Settings", 
             font=ctk.CTkFont(size=13, weight="bold")
         )
         self.config_label.grid(row=2, column=0, padx=20, pady=(10, 5), sticky="w")
@@ -78,7 +78,7 @@ class MainWindow:
         self.copy_unencrypted_var = tk.BooleanVar(value=True)
         self.copy_checkbox = ctk.CTkCheckBox(
             self.sidebar_frame, 
-            text="複製未加密檔案", 
+            text="Copy unencrypted files", 
             variable=self.copy_unencrypted_var,
             font=ctk.CTkFont(size=12)
         )
@@ -88,7 +88,7 @@ class MainWindow:
         self.overwrite_var = tk.BooleanVar(value=False)
         self.overwrite_checkbox = ctk.CTkCheckBox(
             self.sidebar_frame, 
-            text="直接覆寫現有檔案", 
+            text="Overwrite existing files", 
             variable=self.overwrite_var,
             font=ctk.CTkFont(size=12)
         )
@@ -97,7 +97,7 @@ class MainWindow:
         # Theme controller dropdown
         self.appearance_label = ctk.CTkLabel(
             self.sidebar_frame, 
-            text="介面主題 UI Theme", 
+            text="UI Theme", 
             anchor="w",
             font=ctk.CTkFont(size=12)
         )
@@ -123,23 +123,23 @@ class MainWindow:
         self.paths_frame.grid_columnconfigure(1, weight=1)
 
         # Input Path Selector
-        self.input_label = ctk.CTkLabel(self.paths_frame, text="輸入資料夾：", font=ctk.CTkFont(weight="bold"))
+        self.input_label = ctk.CTkLabel(self.paths_frame, text="Input Directory:", font=ctk.CTkFont(weight="bold"))
         self.input_label.grid(row=0, column=0, padx=(15, 5), pady=12, sticky="e")
         
-        self.input_dir_entry = ctk.CTkEntry(self.paths_frame, placeholder_text="請選取包含加密 PDF 的資料夾...")
+        self.input_dir_entry = ctk.CTkEntry(self.paths_frame, placeholder_text="Select input directory containing encrypted PDFs...")
         self.input_dir_entry.grid(row=0, column=1, padx=5, pady=12, sticky="ew")
         
-        self.input_browse_btn = ctk.CTkButton(self.paths_frame, text="瀏覽...", width=80, command=self._browse_input_dir)
+        self.input_browse_btn = ctk.CTkButton(self.paths_frame, text="Browse...", width=80, command=self._browse_input_dir)
         self.input_browse_btn.grid(row=0, column=2, padx=(5, 15), pady=12)
 
         # Output Path Selector
-        self.output_label = ctk.CTkLabel(self.paths_frame, text="輸出資料夾：", font=ctk.CTkFont(weight="bold"))
+        self.output_label = ctk.CTkLabel(self.paths_frame, text="Output Directory:", font=ctk.CTkFont(weight="bold"))
         self.output_label.grid(row=1, column=0, padx=(15, 5), pady=(0, 12), sticky="e")
         
-        self.output_dir_entry = ctk.CTkEntry(self.paths_frame, placeholder_text="請選取解密後檔案的儲存位置...")
+        self.output_dir_entry = ctk.CTkEntry(self.paths_frame, placeholder_text="Select output directory to save decrypted PDFs...")
         self.output_dir_entry.grid(row=1, column=1, padx=5, pady=(0, 12), sticky="ew")
         
-        self.output_browse_btn = ctk.CTkButton(self.paths_frame, text="瀏覽...", width=80, command=self._browse_output_dir)
+        self.output_browse_btn = ctk.CTkButton(self.paths_frame, text="Browse...", width=80, command=self._browse_output_dir)
         self.output_browse_btn.grid(row=1, column=2, padx=(5, 15), pady=(0, 12))
 
         # ---------------- PASSWORDS MANAGEMENT ----------------
@@ -153,15 +153,15 @@ class MainWindow:
 
         self.pass_title = ctk.CTkLabel(
             self.pass_header_frame, 
-            text="候選密碼輸入 (一列一組，將依序嘗試)：", 
+            text="Candidate Passwords (one per line, tried sequentially):", 
             font=ctk.CTkFont(weight="bold")
         )
         self.pass_title.grid(row=0, column=0, sticky="w")
 
         self.load_pass_file_btn = ctk.CTkButton(
             self.pass_header_frame, 
-            text="載入密碼檔 (.txt)", 
-            width=130, 
+            text="Load Password File (.txt)", 
+            width=150, 
             command=self._load_password_file,
             font=ctk.CTkFont(size=11)
         )
@@ -169,7 +169,7 @@ class MainWindow:
 
         self.password_textbox = ctk.CTkTextbox(self.pass_frame, height=100)
         self.password_textbox.grid(row=1, column=0, sticky="ew", padx=15, pady=(0, 12))
-        self.password_textbox.insert("1.0", "# 提示：在此輸入密碼候選清單（每行一組）\n123456\npassword\nadmin123")
+        self.password_textbox.insert("1.0", "# Tip: Enter candidate passwords here (one per line)\n123456\npassword\nadmin123")
 
         # ---------------- LOGS CONSOLE ----------------
         self.logs_frame = ctk.CTkFrame(self.main_frame)
@@ -177,12 +177,12 @@ class MainWindow:
         self.logs_frame.grid_columnconfigure(0, weight=1)
         self.logs_frame.grid_rowconfigure(1, weight=1)
 
-        self.logs_title = ctk.CTkLabel(self.logs_frame, text="執行紀錄 Log Output：", font=ctk.CTkFont(weight="bold"))
+        self.logs_title = ctk.CTkLabel(self.logs_frame, text="Logs & Status Terminal:", font=ctk.CTkFont(weight="bold"))
         self.logs_title.grid(row=0, column=0, sticky="w", padx=15, pady=(10, 2))
 
         self.log_terminal = ctk.CTkTextbox(self.logs_frame, fg_color="#1e1e1e", font=ctk.CTkFont(family="Consolas", size=11))
         self.log_terminal.grid(row=1, column=0, sticky="nsew", padx=15, pady=(0, 12))
-        self.log_terminal.insert("1.0", "系統已準備就緒，請設定輸入與輸出資料夾後按下「開始解密」。\n")
+        self.log_terminal.insert("1.0", "System ready. Select input/output directories, enter passwords, and click 'Start Decrypting'.\n")
         self.log_terminal.configure(state="disabled")
 
         # ---------------- CONTROLS & PROGRESS ----------------
@@ -195,7 +195,7 @@ class MainWindow:
         self.progress_info_frame.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         self.progress_info_frame.grid_columnconfigure(0, weight=1)
 
-        self.progress_label = ctk.CTkLabel(self.progress_info_frame, text="等待操作...", font=ctk.CTkFont(size=12))
+        self.progress_label = ctk.CTkLabel(self.progress_info_frame, text="Idle...", font=ctk.CTkFont(size=12))
         self.progress_label.grid(row=0, column=0, sticky="w")
 
         self.percent_label = ctk.CTkLabel(self.progress_info_frame, text="0%", font=ctk.CTkFont(size=12, weight="bold"))
@@ -213,7 +213,7 @@ class MainWindow:
 
         self.start_btn = ctk.CTkButton(
             self.actions_btn_frame, 
-            text="🔓 開始解密 Start Decrypting", 
+            text="🔓 Start Decrypting", 
             height=40, 
             command=self._on_start_btn_click,
             font=ctk.CTkFont(size=13, weight="bold")
@@ -222,7 +222,7 @@ class MainWindow:
 
         self.cancel_btn = ctk.CTkButton(
             self.actions_btn_frame, 
-            text="🛑 取消執行 Cancel", 
+            text="🛑 Cancel", 
             fg_color="#c0392b", 
             hover_color="#e74c3c",
             height=40, 
@@ -234,7 +234,7 @@ class MainWindow:
 
     # ---------------- BROWSE AND LOAD ACTIONS ----------------
     def _browse_input_dir(self) -> None:
-        selected = filedialog.askdirectory(title="選擇加密 PDF 來源資料夾")
+        selected = filedialog.askdirectory(title="Select Input PDF Directory")
         if selected:
             # Standardize path slashes for cross-platform presentation
             std_path = os.path.normpath(selected)
@@ -242,7 +242,7 @@ class MainWindow:
             self.input_dir_entry.insert(0, std_path)
 
     def _browse_output_dir(self) -> None:
-        selected = filedialog.askdirectory(title="選擇解密後 PDF 輸出資料夾")
+        selected = filedialog.askdirectory(title="Select Output PDF Directory")
         if selected:
             std_path = os.path.normpath(selected)
             self.output_dir_entry.delete(0, "end")
@@ -251,7 +251,7 @@ class MainWindow:
     def _load_password_file(self) -> None:
         """Loads lines from a user-selected text file as candidate passwords."""
         selected_file = filedialog.askopenfilename(
-            title="選取密碼檔", 
+            title="Select Password File", 
             filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
         )
         if selected_file:
@@ -266,11 +266,11 @@ class MainWindow:
                 self.password_textbox.delete("1.0", "end")
                 self.password_textbox.insert("1.0", "\n".join(pw_list))
                 
-                self.log(f"成功從密碼檔載入 {len(pw_list)} 組密碼！", "success")
-                messagebox.showinfo("成功", f"已成功載入 {len(pw_list)} 組候選密碼！")
+                self.log(f"Successfully loaded {len(pw_list)} passwords from file!", "success")
+                messagebox.showinfo("Success", f"Successfully loaded {len(pw_list)} candidate passwords!")
             except Exception as e:
-                self.log(f"載入密碼檔失敗：{e}", "error")
-                messagebox.showerror("錯誤", f"無法讀取密碼檔：{e}")
+                self.log(f"Failed to load password file: {e}", "error")
+                messagebox.showerror("Error", f"Could not read password file: {e}")
 
     # ---------------- INTERFACE STATE CONTROLS ----------------
     def _change_appearance_mode(self, new_appearance_mode: str) -> None:
@@ -279,7 +279,7 @@ class MainWindow:
     def set_processing_state(self, is_processing: bool) -> None:
         """Toggles GUI elements status to prevent editing during execution."""
         if is_processing:
-            self.start_btn.configure(state="disabled", text="⚡ 正在解密檔案...")
+            self.start_btn.configure(state="disabled", text="⚡ Decrypting...")
             self.cancel_btn.configure(state="normal")
             self.input_browse_btn.configure(state="disabled")
             self.output_browse_btn.configure(state="disabled")
@@ -289,7 +289,7 @@ class MainWindow:
             self.copy_checkbox.configure(state="disabled")
             self.overwrite_checkbox.configure(state="disabled")
         else:
-            self.start_btn.configure(state="normal", text="🔓 開始解密 Start Decrypting")
+            self.start_btn.configure(state="normal", text="🔓 Start Decrypting")
             self.cancel_btn.configure(state="disabled")
             self.input_browse_btn.configure(state="normal")
             self.output_browse_btn.configure(state="normal")
@@ -315,13 +315,13 @@ class MainWindow:
 
         # Validations
         if not input_dir:
-            messagebox.showerror("欄位錯誤", "請指定輸入資料夾。")
+            messagebox.showerror("Field Error", "Please specify an input directory.")
             return
         if not output_dir:
-            messagebox.showerror("欄位錯誤", "請指定輸出資料夾。")
+            messagebox.showerror("Field Error", "Please specify an output directory.")
             return
         if not os.path.exists(input_dir):
-            messagebox.showerror("資料夾不存在", f"找不到指定的輸入資料夾：\n{input_dir}")
+            messagebox.showerror("Directory Not Found", f"The specified input directory does not exist:\n{input_dir}")
             return
             
         # Standardize paths
@@ -330,8 +330,8 @@ class MainWindow:
 
         if input_dir == output_dir and not self.overwrite_var.get():
             messagebox.showwarning(
-                "路徑警示", 
-                "輸入與輸出資料夾路徑相同！\n若未開啟『直接覆寫』，解密成功的檔案名稱將會自動加上 '_decrypted' 綴字。"
+                "Path Warning", 
+                "Input and output directories are the same!\nIf 'Overwrite' is disabled, decrypted files will be saved with a '_decrypted' suffix to prevent loss."
             )
 
         copy_unencrypted = self.copy_unencrypted_var.get()
@@ -341,7 +341,7 @@ class MainWindow:
         self.on_start_decryption(input_dir, output_dir, passwords, copy_unencrypted, overwrite)
 
     def _on_cancel_btn_click(self) -> None:
-        self.cancel_btn.configure(state="disabled", text="🛑 正在取消中...")
+        self.cancel_btn.configure(state="disabled", text="🛑 Cancelling...")
         self.on_cancel_decryption()
 
     # ---------------- THREAD-SAFE UI LOG & PROGRESS UPDATERS ----------------
@@ -374,10 +374,10 @@ class MainWindow:
         """Updates the progress bar and labels (main thread)."""
         if total <= 0:
             percentage = 0
-            text = "進度：0 / 0"
+            text = "Progress: 0 / 0"
         else:
             percentage = current / total
-            text = f"處理中 ({current}/{total})：{filename}"
+            text = f"Processing ({current}/{total}): {filename}"
             
         self.progress_bar.set(percentage)
         self.progress_label.configure(text=text)

@@ -76,9 +76,9 @@ class DecryptionWorker:
     def _run(self) -> None:
         """The main decryption loop executed in the background thread."""
         try:
-            self._log("開始掃描資料夾...", "info")
+            self._log("Scanning directory...", "info")
             if not os.path.exists(self.input_dir):
-                self._log(f"錯誤：輸入資料夾不存在 - {self.input_dir}", "error")
+                self._log(f"Error: Input directory does not exist - {self.input_dir}", "error")
                 if self.on_complete:
                     self.on_complete(0, 0, 0)
                 return
@@ -88,12 +88,12 @@ class DecryptionWorker:
             pdf_files = [f for f in all_files if f.lower().endswith('.pdf') and os.path.isfile(os.path.join(self.input_dir, f))]
             total_files = len(pdf_files)
 
-            self._log(f"掃描完成。共找到 {total_files} 個 PDF 檔案。", "info")
+            self._log(f"Scan complete. Found {total_files} PDF files.", "info")
             if self.on_start:
                 self.on_start(total_files)
 
             if total_files == 0:
-                self._log("沒有需要處理的 PDF 檔案。", "warning")
+                self._log("No PDF files found to process.", "warning")
                 if self.on_complete:
                     self.on_complete(0, 0, 0)
                 return
@@ -102,7 +102,7 @@ class DecryptionWorker:
             try:
                 os.makedirs(self.output_dir, exist_ok=True)
             except Exception as e:
-                self._log(f"無法建立輸出資料夾：{e}", "error")
+                self._log(f"Unable to create output directory: {e}", "error")
                 if self.on_complete:
                     self.on_complete(0, 0, 0)
                 return
@@ -114,13 +114,13 @@ class DecryptionWorker:
             for idx, filename in enumerate(pdf_files):
                 # Check for cancellation before processing each file
                 if self.cancel_event.is_set():
-                    self._log("使用者已取消操作。", "warning")
+                    self._log("Operation cancelled by user.", "warning")
                     if self.on_cancel:
                         self.on_cancel()
                     return
 
                 in_path = os.path.join(self.input_dir, filename)
-                self._log(f"[{idx+1}/{total_files}] 正在處理：{filename}", "info")
+                self._log(f"[{idx+1}/{total_files}] Processing: {filename}", "info")
 
                 try:
                     reader = PdfReader(in_path)
@@ -129,16 +129,16 @@ class DecryptionWorker:
                     if not reader.is_encrypted:
                         if self.copy_unencrypted:
                             out_path = self._get_unique_output_path(filename)
-                            self._log(f" └ 檔案未加密。正在複製到輸出資料夾...", "info")
+                            self._log(f" └ File is not encrypted. Copying to output folder...", "info")
                             shutil.copy2(in_path, out_path)
                             success_count += 1
                             if self.on_progress:
-                                self.on_progress(idx + 1, filename, "SUCCESS", f"未加密，複製成功 -> {os.path.basename(out_path)}")
+                                self.on_progress(idx + 1, filename, "SUCCESS", f"Not encrypted, copy success -> {os.path.basename(out_path)}")
                         else:
-                            self._log(f" └ 檔案未加密，跳過。", "info")
+                            self._log(f" └ File is not encrypted, skipping.", "info")
                             skipped_count += 1
                             if self.on_progress:
-                                self.on_progress(idx + 1, filename, "SKIPPED", "未加密且設定跳過")
+                                self.on_progress(idx + 1, filename, "SKIPPED", "Not encrypted, skipped by setting")
                         continue
 
                     # 2. Try candidate passwords
@@ -149,10 +149,10 @@ class DecryptionWorker:
                     valid_passwords = [pw for pw in self.passwords if pw]
                     
                     if not valid_passwords:
-                        self._log(f" └ 檔案已加密，但未提供任何密碼候選字。", "error")
+                        self._log(f" └ File is encrypted, but no candidate passwords provided.", "error")
                         failed_count += 1
                         if self.on_progress:
-                            self.on_progress(idx + 1, filename, "FAILED", "已加密，但無輸入密碼")
+                            self.on_progress(idx + 1, filename, "FAILED", "Encrypted, no passwords provided")
                         continue
 
                     for pw in valid_passwords:
@@ -168,7 +168,7 @@ class DecryptionWorker:
                                 if len(reader.pages) >= 0:
                                     # Verification passed!
                                     decrypted_successfully = True
-                                    self._log(f" └ 解密成功！使用的密碼第 {tried_passwords_count} 組", "success")
+                                    self._log(f" └ Decryption successful! Used password candidate #{tried_passwords_count}", "success")
                                     
                                     # Save decrypted file
                                     out_path = self._get_unique_output_path(filename)
@@ -181,41 +181,41 @@ class DecryptionWorker:
                                         
                                     success_count += 1
                                     if self.on_progress:
-                                        self.on_progress(idx + 1, filename, "SUCCESS", f"解密成功 -> {os.path.basename(out_path)}")
+                                        self.on_progress(idx + 1, filename, "SUCCESS", f"Decrypted successfully -> {os.path.basename(out_path)}")
                                     break
                         except Exception as e:
                             # Decryption failed with this password, log internally and continue trying
-                            self._log(f" └ 嘗試密碼 '{pw[:3]}***' 失敗：{str(e)}", "debug")
+                            self._log(f" └ Password candidate '{pw[:3]}***' failed: {str(e)}", "debug")
                             continue
 
                     if not decrypted_successfully:
-                        self._log(f" └ 錯誤：所有候選密碼均無法解密此檔案。", "error")
+                        self._log(f" └ Error: All candidate passwords failed to decrypt this file.", "error")
                         failed_count += 1
                         if self.on_progress:
-                            self.on_progress(idx + 1, filename, "FAILED", f"密碼錯誤 (嘗試了 {tried_passwords_count} 組)")
+                            self.on_progress(idx + 1, filename, "FAILED", f"Incorrect password (tried {tried_passwords_count} candidates)")
 
                 except PdfReadError:
-                    self._log(f" └ 錯誤：檔案非有效的 PDF 格式或已損毀。", "error")
+                    self._log(f" └ Error: File is not a valid PDF or is corrupted.", "error")
                     failed_count += 1
                     if self.on_progress:
-                        self.on_progress(idx + 1, filename, "FAILED", "無效的 PDF 檔案")
+                        self.on_progress(idx + 1, filename, "FAILED", "Invalid PDF file")
                 except DependencyError as de:
-                    self._log(f" └ 錯誤（缺少依賴）：{str(de)}", "error")
+                    self._log(f" └ Error (missing dependency): {str(de)}", "error")
                     failed_count += 1
                     if self.on_progress:
-                        self.on_progress(idx + 1, filename, "FAILED", "系統缺少解密所需之依賴")
+                        self.on_progress(idx + 1, filename, "FAILED", "System missing dependency for decryption")
                 except Exception as e:
-                    self._log(f" └ 處理時發生未預期錯誤：{str(e)}", "error")
+                    self._log(f" └ Unexpected error during processing: {str(e)}", "error")
                     failed_count += 1
                     if self.on_progress:
-                        self.on_progress(idx + 1, filename, "FAILED", f"未預期錯誤: {str(e)}")
+                        self.on_progress(idx + 1, filename, "FAILED", f"Unexpected error: {str(e)}")
 
             # Process complete
-            self._log(f"處理完畢！成功: {success_count}, 失敗: {failed_count}, 跳過: {skipped_count}", "info")
+            self._log(f"Processing complete! Success: {success_count}, Failed: {failed_count}, Skipped: {skipped_count}", "info")
             if self.on_complete:
                 self.on_complete(success_count, failed_count, skipped_count)
 
         except Exception as e:
-            self._log(f"執行執行緒時發生致命錯誤：{e}", "error")
+            self._log(f"Fatal error in background thread: {e}", "error")
             if self.on_complete:
                 self.on_complete(0, 0, 0)
